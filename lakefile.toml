@@ -1,0 +1,17 @@
+name = "singularity"
+version = "0.1.0"
+defaultTargets = ["Singularity"]
+
+[leanOptions]
+autoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "3649549a1e4b19461e912299ca7127d8831b79fa"
+
+[[lean_lib]]
+name = "Singularity"
+
+[[lean_lib]]
+name = "Challenge"

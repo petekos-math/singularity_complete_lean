@@ -1,0 +1,8 @@
+import Singularity.FuchsianSingularity
+
+#print Singularity.fuchsian_hittingMeasure_singular
+#print Singularity.fuchsian_hittingMeasure_singular_lebesgue
+#print Singularity.fuchsian_hittingLaw_singular
+#print Singularity.fuchsian_randomWalk_converges_and_hittingMeasure_singular
+
+#print axioms Singularity.fuchsian_hittingMeasure_singular

@@ -1,0 +1,85 @@
+# Lean proof of singularity for Fuchsian random walks
+
+The unrestricted theorem is in
+[FuchsianSingularity.lean](Singularity/FuchsianSingularity.lean):
+
+```lean
+Singularity.fuchsian_hittingMeasure_singular
+```
+
+Let Γ be a discrete nonelementary subgroup of PSL(2, ℝ). Let a finite subset
+of Γ carry strictly positive probability weights and generate Γ as a
+semigroup. The hitting measure of the associated right random walk is
+mutually singular with visual measure on the ideal boundary.
+
+**Symmetry and finite covolume are not assumed.** The statement covers
+cocompact lattices, nonuniform lattices, and groups of infinite covolume.
+The probability law is supported on the specified finite subset; values
+of the weight function outside that subset are unused.
+
+The same module proves singularity against Lebesgue measure in the real
+boundary chart, singularity for any almost-sure version of the geometric
+limit, and a combined convergence and singularity theorem. Nonelementarity
+means absence of a finite orbit in the hyperbolic plane together with its
+ideal boundary.
+
+## How the last case is resolved
+
+A noncompact quotient has an unbounded closed Dirichlet cell. An ideal
+accumulation point of that cell gives bounded orbit height in charts at
+that endpoint. The condition is group-invariant. For a full limit set, the
+endpoint's orbit is dense, supplying the finite separators needed by the
+analytic argument. The cocompact and proper-limit-set cases were already
+proved.
+
+The previously proposed classification of finitely generated parabolic-free
+groups is **not needed**. It has not been added as an assumption or axiom.
+See [PROOF_GUIDE.md](PROOF_GUIDE.md) for the mathematical argument and its
+Lean module correspondence.
+
+## Build and inspect
+
+Requirements: Lean installed through Elan, Python 3, and the pinned Mathlib
+dependencies. From this folder run:
+
+```sh
+lake exe cache get
+python3 verify.py
+```
+
+The toolchain is `leanprover/lean4:v4.34.0-rc2`. Mathlib is pinned to commit
+`3649549a1e4b19461e912299ca7127d8831b79fa`. The toolchain and lockfiles are
+included. A first build elsewhere needs network access to obtain those
+external dependencies.
+
+The verifier checks local dependency completeness, builds the project,
+audits every named theorem and definition, and prints the final statements.
+It rejects axioms other than `propext`, `Classical.choice`, and `Quot.sound`.
+The project contains 519 local modules and 2,591 audited declarations.
+
+- [VERIFICATION.txt](VERIFICATION.txt): build and transitive axiom audit.
+- [THEOREM_STATEMENTS.txt](THEOREM_STATEMENTS.txt): Lean's printed final statements.
+- [THEOREM.lean](THEOREM.lean): reproduce statement inspection with
+  `lake env lean THEOREM.lean`.
+- [SOURCE_MANIFEST.json](SOURCE_MANIFEST.json): hashes of checked sources,
+  build configuration, and verification script.
+- [DEPENDENCIES.md](DEPENDENCIES.md): final dependencies and exact scope.
+
+All project-specific proof sources are included. Lean and Mathlib remain
+pinned external foundations; they are not vendored. The separate
+`cocompact-proof` folder remains the independently usable extraction already
+delivered for that case.
+
+Moreover, we provide the Challenge.lean file and the comparator output which verifies our proofs as well.
+
+## Development history
+
+Files with `HISTORY` or `PRE_DIRICHLET` in their names preserve earlier
+progress reports. Statements of missing work there are historical, not
+additional premises of the final theorem. Conditional intermediate lemmas
+remain; the final theorem supplies the conditions it uses.
+
+This is not a line-by-line transcription of the earlier LaTeX manuscript.
+In particular, the final noncompact argument uses Dirichlet ends. The
+package provides a machine-checked formal proof; it does not claim external
+refereeing of the manuscript.

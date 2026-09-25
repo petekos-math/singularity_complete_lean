@@ -1,0 +1,78 @@
+Building Challenge
+⣷ [2766/2779] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 6 mo⣯ [2766/2779] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 6 mo⣟ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⡿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⢿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣻ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣽ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣾ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣷ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣯ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣟ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⡿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⢿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣻ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣽ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣾ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣷ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣯ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣟ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⡿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⢿ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣻ [2767/2780] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⢿ [3064/3077] Running Mathlib.Probability.Kernel.Composition.KernelLemmas (+ 4 m⣻ [3155/3177] Running Mathlib.Probability.Kernel.IonescuTulcea.PartialTraj (+ 5 ⣾ [3351/3382] Running Mathlib.Analysis.SpecialFunctions.ImproperIntegrals (+ 7 m⣷ [3351/3384] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp (⣯ [3351/3384] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp (⣟ [3351/3384] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp (⡿ [3352/3384] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.DerivHyp (⣷ [3355/3385] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.EulerSineP⣯ [3355/3385] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.EulerSineP⣟ [3355/3385] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.EulerSineP⡿ [3355/3385] Running Mathlib.Analysis.SpecialFunctions.Trigonometric.EulerSineP⢿ [3357/3385] Running Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegra⣻ [3357/3385] Running Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegra⣽ [3357/3389] Running Mathlib.Analysis.SpecialFunctions.Gaussian.GaussianIntegra⣯ [3361/3393] Running Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup (+ 8 ⣟ [3362/3393] Running Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup (+ 7 ⡿ [3362/3394] Running Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup (+ 8 ⢿ [3362/3394] Running Mathlib.Analysis.SpecialFunctions.Gamma.BohrMollerup (+ 8 ⣷ [3452/3486] Running Mathlib.Tactic.CategoryTheory.Monoidal.PureCoherence (+ 8 ⣟ [3518/3545] Running Mathlib.LinearAlgebra.Matrix.Determinant.Bird.Correctness ⣻ [3898/3939] Running Mathlib.Geometry.Manifold.IsManifold.InteriorBoundary (+ 8ℹ [4163/4390] Built Singularity.ParabolicDisplacement
+info: Singularity/ParabolicDisplacement.lean:73:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+⚠ [4309/4390] Built Singularity.ProjectiveDirichletCell
+warning: Singularity/ProjectiveDirichletCell.lean:26:2: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+⚠ [4383/4390] Built Singularity.FuchsianQuasiconvexReduction
+warning: Singularity/FuchsianQuasiconvexReduction.lean:44:0: automatically included section variable(s) unused in theorem `Singularity.fuchsian_parabolic_singularity_of_quasiconvex_rigidity`:
+  [MeasurableSingletonClass ↥Γ]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [MeasurableSingletonClass ↥Γ] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+⣷ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣯ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣟ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⡿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⢿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣻ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣽ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣾ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣷ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣯ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣟ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⡿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⢿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣻ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣽ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣾ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣷ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣯ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣟ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⡿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⢿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣻ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣽ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣾ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣷ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣯ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣟ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⡿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⢿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣻ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣽ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣾ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣷ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣯ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣟ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⡿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⢿ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣻ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣽ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣾ [4386/4390] Running Singularity.FuchsianSingularityFromDeficitCompactness (+ 0⣷ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣯ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣟ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⡿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⢿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣻ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣽ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣾ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣷ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣯ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣟ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⡿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⢿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣻ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣽ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣾ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣷ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣯ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣟ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⡿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⢿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣻ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣽ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣾ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣷ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣯ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣟ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⡿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⢿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣻ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣽ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣾ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣷ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣯ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⣟ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⡿ [4387/4390] Running Singularity.FuchsianCuspOrProperLimitSingularity (+ 0 more⚠ [4389/4390] Built Challenge
+warning: Challenge.lean:34:8: declaration uses `sorry`
+warning: Challenge.lean:38:8: declaration uses `sorry`
+warning: Challenge.lean:42:8: declaration uses `sorry`
+warning: Challenge.lean:50:8: declaration uses `sorry`
+Build completed successfully (4390 jobs).
+Exporting #[Quot, Quot.mk, Quot.lift, Quot.ind, Singularity.fuchsian_hittingMeasure_singular, Singularity.fuchsian_hittingMeasure_singular_lebesgue, Singularity.fuchsian_hittingLaw_singular, Singularity.fuchsian_randomWalk_converges_and_hittingMeasure_singular, propext, Quot.sound, Classical.choice, Nat.add, Nat.sub, Nat.mul, Nat.pow, Nat.gcd, Nat.div, Nat.mod, Nat.beq, Nat.ble, Nat.land, Nat.lor, Nat.xor, Nat.shiftLeft, Nat.shiftRight, String.ofList, Char.ofNat, List, eagerReduce, Nat, String, String.mk, Char, optParam, autoParam, semiOutParam, outParam] from Challenge
+Building Singularity
+⣾ [1811/1823] Running Mathlib.Topology.UniformSpace.AbstractCompletion (+ 3 more⢿ [2424/2435] Running Mathlib.Topology.Algebra.SeparationQuotient.FiniteDimensio⣾ [2767/2779] Running Mathlib.Topology.OpenPartialHomeomorph.Composition (+ 5 mo⣷ [2880/2887] Running Mathlib.MeasureTheory.Function.LpSpace.Indicator (+ 4 more⢿ [3325/3334] Running Mathlib.Analysis.InnerProductSpace.CanonicalTensor (+ 2 mo⣻ [3437/3449] Running Mathlib.CategoryTheory.Functor.ReflectsIso.Basic (+ 5 moreℹ [4059/4125] Replayed Singularity.ParabolicDisplacement
+info: Singularity/ParabolicDisplacement.lean:73:2: Try this:
+  [apply] ring_nf
+  
+  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.
+    
+  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.
+⚠ [4067/4125] Replayed Singularity.ProjectiveDirichletCell
+warning: Singularity/ProjectiveDirichletCell.lean:26:2: try 'simp' instead of 'simpa'
+
+Note: This linter can be disabled with `set_option linter.unnecessarySimpa false`
+⚠ [4382/4409] Replayed Singularity.FuchsianQuasiconvexReduction
+warning: Singularity/FuchsianQuasiconvexReduction.lean:44:0: automatically included section variable(s) unused in theorem `Singularity.fuchsian_parabolic_singularity_of_quasiconvex_rigidity`:
+  [MeasurableSingletonClass ↥Γ]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [MeasurableSingletonClass ↥Γ] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+⚠ [4390/4411] Built Singularity.FuchsianFirstKindReduction
+warning: Singularity/FuchsianFirstKindReduction.lean:42:4: Try this: 
+  letI̵
+
+The goal is a proposition, so `let` is preferred over `letI`.
+The difference between `let` and `letI` is that `letI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+⚠ [4405/4471] Built Singularity.FuchsianSingularity
+warning: Singularity/FuchsianSingularity.lean:37:4: Try this: 
+  letI̵
+
+The goal is a proposition, so `let` is preferred over `letI`.
+The difference between `let` and `letI` is that `letI` inlines the value.
+But this is not relevant for proofs because of proof irrelevance.
+
+Note: This linter can be disabled with `set_option linter.style.haveILetI false`
+⚠ [4445/4471] Built Singularity.KilledGreenSubtraction
+warning: Singularity/KilledGreenSubtraction.lean:52:0: automatically included section variable(s) unused in theorem `Singularity.commonSubtraction_memLp`:
+  [Group Γ]
+  [MeasurableMul Γ]
+  [MeasurableSingletonClass Γ]
+  [Countable Γ]
+consider restructuring your `variable` declarations so that the variables are not in scope or explicitly omit them:
+  omit [Group Γ] [MeasurableMul Γ] [MeasurableSingletonClass Γ] [Countable Γ] in theorem ...
+
+Note: This linter can be disabled with `set_option linter.unusedSectionVars false`
+Build completed successfully (4471 jobs).
+Exporting #[Quot, Quot.mk, Quot.lift, Quot.ind, Singularity.fuchsian_hittingMeasure_singular, Singularity.fuchsian_hittingMeasure_singular_lebesgue, Singularity.fuchsian_hittingLaw_singular, Singularity.fuchsian_randomWalk_converges_and_hittingMeasure_singular, propext, Quot.sound, Classical.choice, Nat.add, Nat.sub, Nat.mul, Nat.pow, Nat.gcd, Nat.div, Nat.mod, Nat.beq, Nat.ble, Nat.land, Nat.lor, Nat.xor, Nat.shiftLeft, Nat.shiftRight, String.ofList, Char.ofNat, List, eagerReduce, Nat, String, String.mk, Char, optParam, autoParam, semiOutParam, outParam] from Singularity
+Running Lean default kernel on solution.
+Lean default kernel accepts the solution
+Your solution is okay!

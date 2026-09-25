@@ -1,0 +1,12 @@
+{
+  "challenge_module": "Challenge",
+  "solution_module": "Singularity",
+  "theorem_names": ["Singularity.fuchsian_hittingMeasure_singular", 
+  "Singularity.fuchsian_hittingMeasure_singular_lebesgue",
+  "Singularity.fuchsian_hittingLaw_singular",
+  "Singularity.fuchsian_randomWalk_converges_and_hittingMeasure_singular"],
+  "permitted_axioms": [
+    "propext", "Quot.sound", "Classical.choice"
+  ],
+  "enable_nanoda": false
+}

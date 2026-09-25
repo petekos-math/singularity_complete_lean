@@ -1,0 +1,61 @@
+theorem Singularity.fuchsian_hittingMeasure_singular : ∀ (Γ : Subgroup (Matrix.ProjectiveSpecialLinearGroup (Fin 2) ℝ))
+  [DiscreteTopology ↥Γ] [inst : MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ],
+  Singularity.ProjectiveNonelementary Γ →
+    ∀ (s : Finset ↥Γ) (μ : ↥Γ → ℝ) (hpos : ∀ g ∈ s, 0 < μ g) (hmass : ∑ g ∈ s, μ g = 1),
+      Submonoid.closure ↑s = ⊤ →
+        ∀ (z : UpperHalfPlane),
+          (Singularity.projectiveHittingMeasure Γ s z μ hpos hmass).MutuallySingular
+            (Singularity.compactPoissonMeasure z) :=
+fun Γ [DiscreteTopology ↥Γ] [MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ] hne s μ hpos hmass hgen z =>
+  if hc : CompactSpace (Quotient (MulAction.orbitRel (↥Γ) UpperHalfPlane)) then
+    Singularity.cocompact_fuchsian_hittingMeasure_singular Γ hne s μ hpos hmass hgen z
+  else
+    if hfull : Singularity.projectiveOrbitLimitSet Γ z = Set.univ then
+      Singularity.fuchsian_hittingMeasure_singular_of_deficit_compactness Γ hne s μ hpos hmass hgen z
+        (Singularity.fuchsian_deficit_compactness_of_noncompact_full_limitSet Γ hne s μ hpos hmass hgen z hc hfull)
+    else Singularity.proper_limitSet_fuchsian_hittingMeasure_singular Γ hne s μ hpos hmass hgen z hfull
+theorem Singularity.fuchsian_hittingMeasure_singular_lebesgue : ∀
+  (Γ : Subgroup (Matrix.ProjectiveSpecialLinearGroup (Fin 2) ℝ)) [DiscreteTopology ↥Γ] [inst : MeasurableSpace ↥Γ]
+  [MeasurableSingletonClass ↥Γ],
+  Singularity.ProjectiveNonelementary Γ →
+    ∀ (s : Finset ↥Γ) (μ : ↥Γ → ℝ) (hpos : ∀ g ∈ s, 0 < μ g) (hmass : ∑ g ∈ s, μ g = 1),
+      Submonoid.closure ↑s = ⊤ →
+        ∀ (z : UpperHalfPlane),
+          (Singularity.finiteBoundaryMeasure (Singularity.projectiveHittingMeasure Γ s z μ hpos hmass)).MutuallySingular
+            MeasureTheory.volume :=
+fun Γ [DiscreteTopology ↥Γ] [MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ] hne s μ hpos hmass hgen z =>
+  (Singularity.compact_hitting_singularity_iff (Singularity.projectiveHittingMeasure Γ s z μ hpos hmass) z).mp
+    (Singularity.fuchsian_hittingMeasure_singular Γ hne s μ hpos hmass hgen z)
+theorem Singularity.fuchsian_hittingLaw_singular : ∀ (Γ : Subgroup (Matrix.ProjectiveSpecialLinearGroup (Fin 2) ℝ))
+  [DiscreteTopology ↥Γ] [inst : MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ],
+  Singularity.ProjectiveNonelementary Γ →
+    ∀ (s : Finset ↥Γ) (μ : ↥Γ → ℝ) (hpos : ∀ g ∈ s, 0 < μ g) (hmass : ∑ g ∈ s, μ g = 1),
+      Submonoid.closure ↑s = ⊤ →
+        ∀ (z : UpperHalfPlane) (b : (ℕ → ↥s) → OnePoint ℝ),
+          (∀ᵐ (ω : ℕ → ↥s) ∂Singularity.infiniteWalkLaw s μ ⋯ hmass,
+              Filter.Tendsto (fun n => Singularity.hyperbolicCompactEmbedding (Singularity.walkPosition s 1 n ω • z))
+                Filter.atTop (nhds (Singularity.compactBoundaryEmbedding (b ω)))) →
+            (Singularity.walkBoundaryLaw s μ ⋯ hmass b).MutuallySingular (Singularity.compactPoissonMeasure z) :=
+fun Γ [DiscreteTopology ↥Γ] [MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ] hne s μ hpos hmass hgen z b hb =>
+  Eq.mpr
+    (id
+      (congrArg (fun _a => _a.MutuallySingular (Singularity.compactPoissonMeasure z))
+        (Singularity.fuchsian_hittingMeasure_unique Γ hne s μ hpos hmass hgen z b hb)))
+    (Singularity.fuchsian_hittingMeasure_singular Γ hne s μ hpos hmass hgen z)
+theorem Singularity.fuchsian_randomWalk_converges_and_hittingMeasure_singular : ∀
+  (Γ : Subgroup (Matrix.ProjectiveSpecialLinearGroup (Fin 2) ℝ)) [DiscreteTopology ↥Γ] [inst : MeasurableSpace ↥Γ]
+  [MeasurableSingletonClass ↥Γ],
+  Singularity.ProjectiveNonelementary Γ →
+    ∀ (s : Finset ↥Γ) (μ : ↥Γ → ℝ) (hpos : ∀ g ∈ s, 0 < μ g) (hmass : ∑ g ∈ s, μ g = 1),
+      Submonoid.closure ↑s = ⊤ →
+        ∀ (z : UpperHalfPlane),
+          (∀ᵐ (ω : ℕ → ↥s) ∂Singularity.infiniteWalkLaw s μ ⋯ hmass,
+              Filter.Tendsto (fun n => Singularity.hyperbolicCompactEmbedding (Singularity.walkPosition s 1 n ω • z))
+                Filter.atTop
+                (nhds (Singularity.compactBoundaryEmbedding (Singularity.projectiveBoundaryMap Γ s z ω)))) ∧
+            (Singularity.projectiveHittingMeasure Γ s z μ hpos hmass).MutuallySingular
+              (Singularity.compactPoissonMeasure z) :=
+fun Γ [DiscreteTopology ↥Γ] [MeasurableSpace ↥Γ] [MeasurableSingletonClass ↥Γ] hne s μ hpos hmass hgen z =>
+  ⟨Singularity.fuchsian_boundaryMap_tendsto Γ hne s μ hpos hmass hgen z,
+    Singularity.fuchsian_hittingMeasure_singular Γ hne s μ hpos hmass hgen z⟩
+'Singularity.fuchsian_hittingMeasure_singular' depends on axioms: [propext, Classical.choice, Quot.sound]

@@ -1,0 +1,1193 @@
+% Compile twice with pdflatex. Bibliography and all macros are included.
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=28mm,headheight=14pt]{geometry}
+\usepackage{microtype,enumitem,booktabs,longtable,array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,
+ urlcolor=MidnightBlue,pdftitle={Singularity of Fuchsian random walks: a writeup of the Lean proof}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\newcommand{\HH}{\mathbb H^2}
+\newcommand{\bd}{\partial\HH}
+\newcommand{\Ga}{\Gamma}
+\newcommand{\ck}{\check\nu}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\im}{\operatorname{Im}}
+\newcommand{\re}{\operatorname{Re}}
+\newcommand{\rank}{\operatorname{rank}}
+\newcommand{\PSL}{\operatorname{PSL}}
+\newcommand{\SL}{\operatorname{SL}}
+\newcommand{\id}{\operatorname{id}}
+\newcommand{\one}{\mathbf 1}
+\newcommand{\dd}{\,d}
+\newcommand{\DG}{D_G}
+\newcommand{\dG}{d_G}
+\newcommand{\Law}{\operatorname{Law}}
+\newcommand{\lean}[1]{\par\smallskip\begingroup\raggedright\footnotesize\noindent\textsc{Lean:} \texttt{\detokenize{#1}}.\par\endgroup\smallskip}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\numberwithin{equation}{section}
+\setlist{itemsep=3pt,topsep=5pt}
+\setlength{\emergencystretch}{3em}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\small Singularity of Fuchsian random walks}
+\fancyhead[R]{\small Exposition of the Lean proof}
+\fancyfoot[C]{\thepage}
+\title{\textbf{Singularity of finitely supported random walks\\on Fuchsian groups}\\[7pt]
+\large A mathematical exposition of the Lean formalization}
+\author{}
+\date{24 September 2026}
+\begin{document}
+\maketitle
+\vspace{-14pt}
+\begin{abstract}
+We present the argument implemented in the Lean development for singularity
+of the hitting measure of a finitely supported, semigroup-generating random
+walk on any discrete nonelementary subgroup of $\PSL_2(\R)$. No symmetry or
+finite-covolume assumption is made. The cocompact argument combines a
+one-sided comparison of invariant currents with an infinite-strip Green
+factorization and a Fourier obstruction. For the general case, an ideal end
+of a Dirichlet cell supplies a bounded-height endpoint. Boundary minimality
+then gives finite separators. Exact entrance identities yield common shadow
+estimates, and an explicit Radon--Nikodym rigidity argument forces orbit
+quasiconvexity under hypothetical nonsingularity. This reduces to the
+cocompact case or a visual-null limit set. The relevant Lean declarations
+are indexed throughout and in an appendix.
+\end{abstract}
+{\small\tableofcontents}
+\newpage
+
+\section{Statement, conventions, and the proof's dependencies}
+\begin{theorem}\label{thm:main}
+Let $\Ga<\PSL_2(\R)$ be a discrete nonelementary subgroup. Let $\mu$ be a
+probability measure with finite support $S$, where $S$ generates $\Ga$ as a
+semigroup. For independent $\mu$-distributed increments $X_1,X_2,\ldots$,
+put $Z_n=X_1\cdots X_n$. Then $Z_no$ converges almost surely to $\bd$, and
+its limiting distribution $\nu$ is mutually singular with visual measure:
+\[
+                         \nu\perp m_o.
+\]
+This holds for every $o\in\HH$, without symmetry of $\mu$ and without a
+restriction on the covolume of $\Ga$.
+\end{theorem}
+\lean{FuchsianSingularity.fuchsian_hittingMeasure_singular}
+
+Here and below a Lean reference of the form \texttt{Module.declaration}
+means the declaration in \texttt{Singularity/Module.lean}; its namespace
+is \texttt{Singularity}. The stated scope is finite support with
+\emph{semigroup} generation. Group generation alone is not substituted for it.
+Nonelementarity means that no point of $\HH\cup\bd$ has a finite orbit.
+The upper half-plane has curvature $-1$, and $\bd=\R\cup\{\infty\}$.
+At $z=x+iy$ the visual probability is
+\begin{equation}\label{eq:poisson}
+ dm_z(t)=\frac{y}{\pi((t-x)^2+y^2)}\dd t,\qquad m_z\{\infty\}=0.
+\end{equation}
+All $m_z$ are equivalent. When $o=i$, its relative Poisson kernel is
+\begin{equation}\label{eq:relative-poisson}
+ P_z(t)=\frac{dm_z}{dm_i}(t)=\frac{y(1+t^2)}{(t-x)^2+y^2}.
+\end{equation}
+We use the Busemann sign convention
+\[
+ \beta_\xi(z,w)=\lim_{u\to\xi}\bigl(d(z,u)-d(w,u)\bigr),\qquad
+ P_z(\xi)=e^{\beta_\xi(i,z)}.
+\]
+In particular $\beta_\infty(z,w)=\log(\im w/\im z)$.
+
+\paragraph{Relation to the formal proof.}
+This is a mathematical exposition, not a literal translation of tactic
+scripts. It gives the main estimates and their assembly, including the
+noncompact argument. We use standard foundational theorems of probability,
+measure theory, Fourier analysis, and hyperbolic geometry in their usual
+mathematical form. The cocompact Martin--Na\"im boundary package is stated
+explicitly in Proposition~\ref{prop:boundary-package}; it is a substantial
+standard theorem, not something claimed to follow merely from weak
+convergence of hitting laws. The Lean development constructs the needed
+package and the other inputs internally; the appendix identifies its
+modules. This document does not rederive every foundational theorem or every
+one of the development's 2,591 declarations.
+
+The proof is organized without circularity: first prove the cocompact case;
+then prove singularity for quasiconvex orbits; next establish the geometric
+separator property for noncompact groups; finally derive quasiconvexity
+from hypothetical nonsingularity. The final step does not assume a
+classification of finitely generated Fuchsian groups, relative hyperbolicity,
+or the singularity conclusion of an external rigidity theorem.
+
+\section{The walk, Green functions, and boundary densities}\label{sec:prelim}
+Write $e$ for the identity, $p_n(x,y)=\mathbb P_x(Z_n=y)$, and
+\begin{equation}\label{eq:green}
+ G(x,y)=\sum_{n\ge0}p_n(x,y),\quad G_0=G(e,e),\quad
+ F(x,y)=\mathbb P_x(T_y<\infty)=\frac{G(x,y)}{G_0}.
+\end{equation}
+The equality for $F$ follows by restarting the walk at its first visit to
+$y$. Define
+\[
+ \dG(x,y)=-\log F(x,y),\qquad \DG(g)=\dG(e,g),\qquad D(g)=d(o,go).
+\]
+The Green distance need not be symmetric. It is left invariant and satisfies
+the triangle inequality, since $F(x,z)\ge F(x,y)F(y,z)$.
+
+\begin{proposition}[Basic random-walk facts]\label{prop:basic}
+Under the hypotheses of Theorem~\ref{thm:main}:
+\begin{enumerate}
+\item On counting $\ell^2(\Ga)$,
+\[
+ (Pf)(x)=\sum_{s\in S}\mu(s)f(xs),\qquad
+ (P^*f)(x)=\sum_{s\in S}\mu(s)f(xs^{-1})
+\]
+satisfy $\|P\|\le1$ and $r(P)<1$. In particular $G=(I-P)^{-1}$ is bounded,
+the Green series converges in operator norm, and all $G(x,y)$ are positive.
+\item The geometric boundary limit exists almost surely. Its law $\nu$ is
+stationary, atomless, supported on the ideal limit set $\Lambda$, and
+$g_*\nu\sim\nu$ for every $g\in\Ga$.
+\item If $E\subset\bd$ is measurable, then
+\begin{equation}\label{eq:martingale}
+ (Z_n)_*\nu(E)=\nu(Z_n^{-1}E)\longrightarrow\one_E(Z_\infty)
+ \quad\text{almost surely}.
+\end{equation}
+\item Either $\nu\perp m_o$ or $\nu\ll m_o$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}[Explanation of the inputs and their use]
+Jensen's inequality and invariance of counting measure give
+$\|Pf\|_2^2\le\sum_s\mu(s)\sum_x|f(xs)|^2=\|f\|_2^2$.
+A nonelementary Fuchsian group contains a free subgroup by hyperbolic
+ping-pong and is nonamenable. The admissible convolution spectral-radius
+criterion gives $r(P)<1$; see Woess~\cite{Woess}, Chapter~12. This is a
+spectral-radius assertion and does \emph{not} assert $\|P\|<1$.
+The right and left convolution formulations are intertwined by
+$f(x)\mapsto f(x^{-1})$. The spectral-radius formula supplies constants
+$A<\infty$, $q<1$ with $\|P^n\|\le Aq^n$, proving Green convergence.
+Semigroup generation supplies a positive-probability path between any two
+states, giving positivity of $G$.
+
+Almost-sure boundary convergence is the standard convergence theorem for
+nonelementary walks on $\HH$; in the formal development it is obtained from
+the actual path law and the projective action. Stationarity follows by
+conditioning on the first increment. Iterating stationarity along positive
+words proves equivalence with every group translate. A maximal atom, if
+present, would give a nonempty finite invariant set of maximal atoms, which
+nonelementarity excludes. Discreteness and escape from finite sets place
+the geometric limit in $\Lambda$.
+
+Given the first $n$ increments, the remaining boundary limit has law
+$(Z_n)_*\nu$. Thus the left side of \eqref{eq:martingale} is the conditional
+expectation of $\one_E(Z_\infty)$; martingale convergence proves the claim.
+For the last assertion, take a visual-null Borel set carrying the singular
+part of $\nu$ and replace it by the union of all its group translates.
+The resulting set $B$ is invariant and visual-null, and
+$\nu(B)$ is exactly the mass of the singular part. The event
+$Z_\infty\in B$ is invariant under the one-sided shift of the independent
+increment sequence: deleting the first increment changes the boundary
+limit by a group element. Ergodicity of the independent shift gives
+$\nu(B)\in\{0,1\}$. These alternatives give respectively
+$\nu\ll m_o$ and $\nu\perp m_o$.
+\end{proof}
+\lean{FuchsianHittingMeasure; FuchsianBoundaryConcentration; FuchsianHittingErgodicity}
+
+All almost-everywhere identities involving elements of $\Ga$ can be imposed
+on one invariant conull set: $\Ga$ is countable and its action is
+quasi-invariant. This convention is used throughout.
+
+For any finite quasi-invariant measure $\rho$, put
+\begin{equation}\label{eq:cocycle}
+ K_\rho(g,\xi)=\frac{d(g_*\rho)}{d\rho}(\xi),\qquad
+ \sigma_\rho(g,\xi)=-\log K_\rho(g^{-1},\xi).
+\end{equation}
+Then
+\begin{align}
+ \sigma_\rho(gh,\xi)&=\sigma_\rho(g,h\xi)+\sigma_\rho(h,\xi),\label{eq:additive}\\
+ \rho(gE)&=\int_E e^{-\sigma_\rho(g,\xi)}\dd\rho(\xi).
+ \label{eq:jacobian}
+\end{align}
+If $\nu=f\rho$ and $H=\log f$, then
+\begin{equation}\label{eq:coboundary}
+ \sigma_\nu(g,\xi)-\sigma_\rho(g,\xi)=H(\xi)-H(g\xi).
+\end{equation}
+For $\nu$, $g\mapsto K_\nu(g,\xi)$ is positive $\mu$-harmonic and takes
+value one at $e$. Optional stopping at a singleton gives, for any positive
+normalized superharmonic $h$,
+\begin{equation}\label{eq:superharmonic}
+ F(x,y)h(y)\le h(x).
+\end{equation}
+Applying this in both directions to $K_\nu(\cdot,\xi)$ yields
+\begin{equation}\label{eq:cocycle-bound}
+ -\dG(g,e)\le\sigma_\nu(g,\xi)\le\DG(g).
+\end{equation}
+The visual counterpart is $|\sigma_{m_o}(g,\xi)|\le D(g)$.
+\lean{StationaryLogCocycle; RadonNikodymCoboundary; VisualLogCocycle}
+
+\section{Green compression and exact separator identities}\label{sec:operators}
+These facts apply to any of the groups in the theorem.
+\begin{lemma}[Coercivity without laziness]\label{lem:coercive}
+For $v\in\ell^2(\Ga)$,
+\begin{equation}\label{eq:coercive}
+ \re\langle Gv,v\rangle\ge\tfrac12\|v\|_2^2.
+\end{equation}
+For every $A\subset\Ga$, let $i_A:\ell^2(A)\to\ell^2(\Ga)$ be extension
+by zero, and let $r_A=i_A^*$ be restriction. Then
+$G_A=r_AGi_A$ is boundedly invertible. Writing $M_A=G_A^{-1}$, we have
+$\|M_A\|\le2$.
+\end{lemma}
+\begin{proof}
+Set $w=Gv$, so $v=w-Pw$. Direct expansion gives
+\[
+ 2\re\langle Gv,v\rangle-\|v\|^2
+ =\|w\|^2-\|Pw\|^2\ge0.
+\]
+Extension by zero transfers this inequality to $G_A$. Cauchy--Schwarz
+gives $\|G_Au\|\ge\|u\|/2$, so its range is closed. Its adjoint satisfies
+the same real-part inequality, hence $\ker G_A^*=\{0\}$; the range is
+therefore dense, and thus all of $\ell^2(A)$. The inverse norm bound follows.
+No self-adjointness or entrywise positivity of $M_A$ is asserted.
+\end{proof}
+\lean{Green; GreenAdjoint; Operators}
+
+For $T_A=\inf\{n\ge0:Z_n\in A\}$ define
+\[
+ F_A(x,a)=\mathbb P_x(T_A<\infty, Z_{T_A}=a),\qquad a\in A.
+\]
+This counts paths up to their \emph{first} entrance into $A$; by contrast,
+$G(x,a)$ counts all visits and places no restriction on intermediate paths.
+The first-entrance decomposition gives
+\begin{equation}\label{eq:entrance-green}
+ G(x,y)=G^{A}(x,y)+\sum_{a\in A}F_A(x,a)G(a,y),
+\end{equation}
+where $G^{A}$ counts paths killed at entrance into $A$. Since
+$0\le F_A(x,a)\le G(x,a)$, positivity implies a bounded entrance operator:
+$|F_Au|\le G i_A|u|$. Restricting \eqref{eq:entrance-green} to $y\in A$
+gives $Gi_A=F_AG_A$, hence $F_A=Gi_AM_A$.
+Consequently, if every supported path from $x$ to $y$ meets $A$,
+\begin{equation}\label{eq:separator}
+                 G(x,y)=G(x,A)M_AG(A,y).
+\end{equation}
+Rows and columns of $G$ belong to $\ell^2$ because $G$ is bounded. Thus
+the right side is a legitimate Hilbert-space pairing. A two-index matrix
+sum should be interpreted through finite-coordinate truncations converging
+in that pairing; boundedness of $M_A$ alone does not imply absolute
+summability of its entrywise expansion. The equivalent Schur identity is
+\[
+ G^{A}_{BB}=G_{BB}-G_{BA}G_A^{-1}G_{AB},\qquad B=\Ga\setminus A.
+\]
+\lean{EntranceOperator; GreenSeparator; FiniteEntranceDecomposition}
+
+\section{The cocompact boundary package}\label{sec:boundary-package}
+In this section assume $\Ga\backslash\HH$ is compact. Put
+$\check\mu(g)=\mu(g^{-1})$ and let $\ck$ be its hitting law. Then
+$\check G(x,y)=G(y,x)$.
+
+\begin{proposition}[Martin kernels and the invariant current]\label{prop:boundary-package}
+The geometric circle is the Martin boundary for each of the two walks.
+There are positive continuous kernels
+\[
+ K(g,\eta)=\lim_{y\to\eta}\frac{G(g,y)}{G(e,y)},\qquad
+ \check K(g,\xi)=\lim_{x\to\xi}\frac{G(x,g)}{G(x,e)},
+\]
+which agree almost everywhere with the densities of $g_*\nu$ and
+$g_*\ck$. Off the diagonal the limit
+\begin{equation}\label{eq:naim}
+ \Theta(\xi,\eta)=\lim_{x\to\xi,\,y\to\eta}
+       \frac{G(x,y)}{G(x,e)G(e,y)}
+\end{equation}
+exists, is positive and continuous, and
+\begin{equation}\label{eq:current}
+           dJ(\xi,\eta)=\Theta(\xi,\eta)\,d\ck(\xi)\,d\nu(\eta)
+\end{equation}
+is $\Ga$-invariant. The associated flow measure $dJ\,dt$ descends to a
+finite, nonzero invariant measure on the compact frame quotient.
+\end{proposition}
+This is the finite-range cocompact Martin--Ancona--Na\"im package. The
+order of the two measures matters: the first is reflected, the second
+forward. Background for the boundary results and current convention is
+provided by \cite{Gouezel,CantrellTanaka}. The formalization proves the required
+Ancona comparison, Martin identification, off-diagonal convergence and
+covariance rather than assuming this proposition.
+
+For clarity, the mechanism behind the package is as follows. Cocompactness
+gives a uniform orbit net. The spectral bound and exponential hyperbolic
+detours make the total weight of paths avoiding a large ball on a geodesic
+superexponentially small in the ball radius. First/last-entrance
+decompositions, iterated through a summable sequence of relative errors,
+give uniform Ancona inequalities
+\[
+ G(x,y)\asymp G(x,u)G(u,y)
+ \quad\text{when }uo\text{ stays a bounded distance from }[xo,yo].
+\]
+Comparing normalized positive harmonic functions on nested barriers gives
+unique Martin limits; integral representations identify them with actual
+hitting densities. Off-diagonal strip pairings give the two-variable
+limit. Its change-of-basepoint rule is exactly the invariance in
+\eqref{eq:current}. Positivity and continuity imply local finiteness of
+$J\,dt$ in flow boxes; a compact fundamental cover gives finite mass on
+the quotient. These construction statements are the formal results
+indexed below, not extra hypotheses imposed on the walk.
+\lean{CocompactAxisAncona; GeometricMartinHomeomorph; HittingMartinDensity}
+\lean{GeometricNaimKernel; NaimCovariance; GeometricNaimQuotient}
+
+\section{Why one-sided absolute continuity suffices}\label{sec:onesided}
+\begin{lemma}\label{lem:onesided}
+In the cocompact case, $\nu\ll m_o$ implies that the normalized quotient
+measure induced by $J\,dt$ is Liouville probability. In particular,
+$\ck\ll m_o$ and $J=cJ_0$, where
+\begin{equation}\label{eq:liouville}
+                 dJ_0(\xi,\eta)=\frac{d\xi\,d\eta}{(\xi-\eta)^2},\qquad c>0.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Let $L$ be Liouville probability on the compact frame quotient and let
+$\Omega$ be the normalized probability induced by $J\,dt$. Both are
+geodesic-flow invariant. The geodesic flow is ergodic for $L$ by the Hopf
+argument (in the formalization, the corresponding Haar assertion follows
+from Mautner's argument and the contracting upper/lower unipotent groups).
+
+Fix a continuous observable $f$. For $L$-almost every frame its forward
+Ces\`aro averages converge to $\int f\,dL$. This convergence property is
+unchanged along a strong stable leaf: the forward trajectories become
+asymptotic, and uniform continuity on the compact quotient makes the
+difference of their averages tend to zero. It is also unchanged by a
+fixed time shift.
+
+In local Hopf coordinates $(\xi^-,\xi^+,t)$, Haar measure is equivalent
+to the product of visual measures in the two endpoint coordinates and
+Lebesgue measure in the time coordinate. Fubini, followed by stable
+saturation and time-shift invariance, says that for visual-almost every
+forward endpoint, the convergence property holds for every compatible
+backward endpoint and time. The possible diagonal has zero product mass.
+Because $\nu\ll m_o$, this full-measure assertion transfers to
+$\ck\otimes\nu\otimes dt$, even if $\ck$ is initially singular.
+The positive kernel $\Theta$ transfers it further to $\Omega$.
+
+Invariance of $\Omega$ makes the integral of each Ces\`aro average equal
+to $\int f\,d\Omega$. Bounded convergence gives
+$\int f\,d\Omega=\int f\,dL$. Continuous observables determine finite
+measures on the compact quotient, so $\Omega=L$. Lifting this equality to
+flow boxes and disintegrating in $t$ gives $J=cJ_0$ on boundary pairs.
+Since $\Theta$ is positive, local product rectangles then imply
+$\ck\ll m_o$ (and equivalence of both marginals with $m_o$).
+\end{proof}
+\lean{OneSidedNaimRigidity.geometricNaimQuotientProbability_eq_haar_of_forward_ac}
+\lean{StableFrameMeasureTransfer; NaimQuotientComparison}
+
+\begin{lemma}[Uniform densities and Green comparison]\label{lem:green-sharp}
+If $\nu$ is nonsingular in the cocompact case, there are positive constants
+$a,b,C$ such that
+\begin{equation}\label{eq:bounded-density}
+ a m_o\le\nu\le b m_o,\qquad a m_o\le\ck\le b m_o,
+\end{equation}
+and, for all $x,y\in\Ga$,
+\begin{equation}\label{eq:sharp}
+ C^{-1}e^{-d(xo,yo)}\le G(x,y)\le C e^{-d(xo,yo)}.
+\end{equation}
+The same comparison holds for $\check G$.
+\end{lemma}
+\begin{proof}
+Proposition~\ref{prop:basic} gives $\nu\ll m_o$, and
+Lemma~\ref{lem:onesided} gives $J=cJ_0$. Write the two marginal densities
+as $f_-$ and $f_+$. On two separated compact boundary arcs $U,V$, the
+identity of currents reads
+$\Theta f_-f_+=c\,dJ_0/d(m_o\otimes m_o)$.
+Both continuous factors are bounded above and below by positive constants
+on $U\times V$. Integrating in one variable bounds the other marginal
+density above and below on its arc. The integrals are positive and finite
+because the marginals are equivalent probabilities. A finite cover by
+such separated rectangles proves \eqref{eq:bounded-density} globally.
+
+First-hit domination gives $F(e,g)g_*\nu\le\nu$. The density bounds imply
+$aF(e,g)m_{go}\le b m_o$. The relative Poisson density has essential
+supremum $e^{D(g)}$, so $F(e,g)\le(b/a)e^{-D(g)}$.
+For the reverse inequality, extend a geodesic through $go$ to a boundary
+point $\eta$. Ancona comparison along an orbit sequence on that extension
+gives $G(e,g)K(g,\eta)\ge c_0>0$, with $c_0$ uniform. The density
+identification and \eqref{eq:bounded-density} give
+$K(g,\eta)\le(b/a)e^{D(g)}$. The almost-everywhere bound extends to every
+$\eta$ by continuity and full support. Thus $G(e,g)\ge c_1e^{-D(g)}$.
+Left invariance gives \eqref{eq:sharp}, and transposition gives the
+reflected comparison.
+\end{proof}
+\lean{NaimCurrentRigidity; GreenVisualUpper; GreenVisualLower}
+
+\section{The periodic strip and its boundary factorization}\label{sec:strip}
+Continue to assume that $\Ga\backslash\HH$ is compact and that
+$\nu\not\perp m_o$. Choose a hyperbolic element $a\in\Ga$. After
+conjugating, its axis is the imaginary axis and $az=e^\tau z$, with
+$\tau>0$. We may take $o=i$: changing the basepoint changes visual measure
+within its measure class and does not change the abstract walk.
+Let $L=\max_{s\in S}d(i,si)$. Choose a closed strip of width greater than
+$L$ about the axis and let $A$ consist of the group elements whose orbit
+points belong to that strip. Every walk path crossing from its negative
+side to its positive side meets $A$.
+
+The strip modulo $\langle a\rangle$ is compact. Properness of the orbit
+map, including finite point stabilizers, therefore gives a disjoint
+parametrization
+\begin{equation}\label{eq:strip}
+                 A=\{a^n b_j:n\in\Z,\ 1\le j\le N\}
+\end{equation}
+with $N<\infty$. Enlarge the width if necessary to ensure $N\ge1$.
+The identification in \eqref{eq:strip} identifies $\ell^2(A)$ with
+$\ell^2(\Z\times\{1,\ldots,N\})$.
+
+For $\xi<0<\eta$, choose orbit sequences $x_ko\to\xi$ and $y_ko\to\eta$
+tracking rays. For sufficiently large $k$, the separator identity gives
+\begin{equation}\label{eq:normalized-separator}
+ \frac{G(x_k,y_k)}{G(x_k,e)G(e,y_k)}
+ =\left(\frac{G(x_k,\cdot)}{G(x_k,e)}\right)_{A}
+ M_A
+ \left(\frac{G(\cdot,y_k)}{G(e,y_k)}\right)_{A}.
+\end{equation}
+The vectors on the right converge \emph{strongly in $\ell^2(A)$} to
+$(\check K(g,\xi))_{g\in A}$ and $(K(g,\eta))_{g\in A}$, respectively.
+Here is the estimate justifying this essential point. The two-sided
+Green comparison \eqref{eq:sharp}, followed by the explicit hyperbolic
+distance formula, bounds the ratios along a ray to a fixed endpoint on
+one side of the axis by
+\[
+       C_{\xi,j}e^{-|n|\tau}\quad\text{or}\quad
+       C_{\eta,j}e^{-|n|\tau},\qquad g=a^n b_j.
+\]
+The constants are uniform in the point along that ray; bounded tracking
+errors change them by a fixed factor. To see the decay at the endpoint
+directly, write $b_ji=u_j+iv_j$ and use
+\[
+ P_{a^n b_ji}(t)=
+ \frac{e^{n\tau}v_j(1+t^2)}{(t-e^{n\tau}u_j)^2+e^{2n\tau}v_j^2}
+                         =O_t(e^{-|n|\tau}),\qquad t\ne0,\infty.
+\]
+More explicitly, along a geodesic ray $w_t$ from $i$ to $\xi$,
+$d(zo,w_t)-t$ decreases to $\beta_\xi(zo,i)$. Hence
+$\exp(d(i,w_t)-d(zo,w_t))\le P_{zo}(\xi)$; a bounded error in tracking
+the ray multiplies this bound by a fixed constant. Applying this to
+\eqref{eq:sharp} gives the uniform bound just used. Its square is summable over $A$. Coordinatewise
+Martin convergence and dominated convergence in $\ell^2$ now apply.
+Boundedness of $M_A$, rather than an unjustified interchange of an
+entrywise double sum and a boundary limit, yields
+\begin{equation}\label{eq:naim-factor}
+       \Theta(\xi,\eta)=\check K(A,\xi)^T M_A K(A,\eta).
+\end{equation}
+The transpose denotes the real bilinear pairing, extended complex
+bilinearly when appropriate. All these kernels are real.
+\lean{StripNaimKernel; StripNaimContinuity; NaimOrbitPairing}
+
+Write $f_+(x)=d\nu/dx$ and $f_-(x)=d\check\nu/dx$ in the finite boundary
+chart. In logarithmic coordinates define
+\begin{equation}\label{eq:kplus}
+ \begin{split}
+ k_g^+(t)&=e^t K(g,e^t)f_+(e^t),\\
+ k_g^-(t)&=e^t\check K(g,-e^t)f_-(-e^t).
+ \end{split}
+\end{equation}
+Thus $k_g^+(t)\,dt$ is the restriction of $g_*\nu$ to the positive
+half-line, pulled back by $t\mapsto e^t$. The analogous statement for
+$k_g^-$ uses $g_*\check\nu$ and $t\mapsto-e^t$. In particular,
+\begin{equation}\label{eq:translate-k}
+ k_{a^n b_j}^{\pm}(t)=k_{b_j}^{\pm}(t-n\tau),\qquad
+ \int_\R k_g^\pm(t)\,dt\le1.
+\end{equation}
+The density bounds \eqref{eq:bounded-density}, applied after pushforward,
+give $k_{b_j}^{\pm}(t)\le C_j e^{-|t|}$. Consequently
+\begin{equation}\label{eq:bounded-periodization}
+       \sup_t\sum_{n\in\Z}\sum_{j=1}^N k_{a^n b_j}^{\pm}(t)<\infty.
+\end{equation}
+Define the analysis operators
+\[
+ H_\pm:L^2(\R)\longrightarrow\ell^2(A),\qquad
+        (H_\pm\varphi)_g=\int_\R\varphi(t)k_g^\pm(t)\,dt.
+\]
+They are bounded: weighted Cauchy--Schwarz gives
+\[
+ \left|\int\varphi k_g^\pm\right|^2
+ \le\left(\int|\varphi|^2 k_g^\pm\right)\left(\int k_g^\pm\right)
+ \le\int|\varphi|^2 k_g^\pm,
+\]
+and summation uses \eqref{eq:bounded-periodization}.
+The estimate using $\|k_g^\pm\|_\infty$ separately would not provide this
+summable control over the translates.
+
+In the real chart the Liouville current is, up to normalization,
+$|\xi-\eta|^{-2}d\xi\,d\eta$. Thus $J=cJ_0$ and
+\eqref{eq:naim-factor} give, after absorbing normalization into $c>0$,
+\begin{equation}\label{eq:log-kernel}
+ c\,\ell(s-t)=k^-(s)^T M_A k^+(t),\qquad
+              \ell(u)=\frac1{4\cosh^2(u/2)}.
+\end{equation}
+All operators now have specified domains. Convolution by $c\ell$ on
+$L^2(\R)$, denoted $\mathcal C$, satisfies
+\begin{equation}\label{eq:operator-factor}
+ \mathcal C=H_-^*M_AH_+:
+ L^2(\R)\xrightarrow{H_+}\ell^2(A)
+ \xrightarrow{M_A}\ell^2(A)\xrightarrow{H_-^*}L^2(\R).
+\end{equation}
+Indeed, first pair \eqref{eq:log-kernel} against compactly supported bounded
+test functions in both variables. The bound
+$\|M_A\|\|k^-(s)\|_2\|k^+(t)\|_2$ and the preceding periodization
+estimates justify the vector-valued integrals and their pairings.
+Then extend by density and boundedness. This avoids treating $M_A$ as
+an entrywise nonnegative matrix, which it need not be.
+\lean{KernelFactorization; NormalizedTwoSidedSingularity}
+
+\section{The Fourier obstruction}\label{sec:fourier}
+We use $\widehat f(\omega)=\int_\R f(t)e^{-2\pi i\omega t}\,dt$,
+with its unitary extension to $L^2$. The following elementary fact is the
+finite-generator obstruction for a fixed translation lattice; compare
+Bownik~\cite{Bownik}.
+\begin{lemma}\label{lem:translates}
+For any $h_1,\ldots,h_N\in L^2(\R)$ and $\tau>0$, the closed linear
+span of $\{h_j(\cdot-n\tau):n\in\Z,1\le j\le N\}$ is a proper subspace
+of $L^2(\R)$.
+\end{lemma}
+\begin{proof}
+Set $q=1/\tau$. For $\omega\in[0,q)$ form the $N\times(N+1)$ matrix
+\[
+ B(\omega)_{j,l}=\overline{\widehat h_j(\omega+lq)},\qquad 0\le l\le N.
+\]
+Choose measurable representatives of the Fourier transforms. Rank--nullity
+gives $\dim\ker B(\omega)\ge1$ for every $\omega$ where the entries
+are finite, hence almost everywhere. We record a measurable choice,
+since pointwise existence alone would not suffice.
+For $\varepsilon>0$ let
+\[
+ Q_\varepsilon(\omega)=\varepsilon
+       (B(\omega)^*B(\omega)+\varepsilon I)^{-1}.
+\]
+Its entries are measurable. The spectral theorem for a finite Hermitian
+matrix shows that $Q_{1/m}(\omega)$ converges, entry by entry, to the
+orthogonal projection $Q(\omega)$ onto $\ker B(\omega)$: on an eigenvalue
+$\lambda\ge0$, the multiplier tends to $1$ if $\lambda=0$ and to $0$
+otherwise. Thus $Q$ is measurable. Moreover,
+\[
+ \sum_{l=0}^N\|Q(\omega)e_l\|^2=\operatorname{tr}Q(\omega)\ge1.
+\]
+At least one column has norm at least $(N+1)^{-1/2}$. Take the first such
+column and normalize it, obtaining a measurable unit vector
+$v(\omega)\in\ker B(\omega)$.
+
+Define $\widehat\varphi(\omega+lq)=v_l(\omega)$ for $0\le\omega<q$,
+$0\le l\le N$, and define it to be zero elsewhere. Then
+$\|\widehat\varphi\|_2^2=q>0$. For every $n,j$, Plancherel gives
+\[
+ \langle\varphi,h_j(\cdot-n\tau)\rangle
+ =\int_0^q e^{2\pi in\tau\omega}
+       \sum_{l=0}^N v_l(\omega)\overline{\widehat h_j(\omega+lq)}\,d\omega
+ =0.
+\]
+The equality uses $e^{2\pi in\tau lq}=1$. All integrals are legitimate
+by Cauchy--Schwarz. This nonzero $\varphi$ proves the assertion.
+\end{proof}
+\lean{KernelProjection; MeasurableKernel; FrequencyKernel; FourierReduction}
+
+On the other hand, convolution by $\ell$ has trivial kernel. An explicit
+calculation compatible with the formal proof is useful. Put
+$\gamma(t)=\exp(t-e^t)$ and $\widetilde\gamma(t)=\gamma(-t)$. Substituting
+$u=e^s$ gives
+\[
+ (\gamma*\widetilde\gamma)(t)
+ = e^{-t}\int_0^\infty u e^{-(1+e^{-t})u}\,du
+ =\frac{e^{-t}}{(1+e^{-t})^2}=\ell(t).
+\]
+Likewise $\widehat\gamma(\omega)=\Gamma(1-2\pi i\omega)$, so
+\begin{equation}\label{eq:liouville-multiplier}
+ \widehat\ell(\omega)=|\Gamma(1+2\pi i\omega)|^2
+ =\begin{cases}\displaystyle\frac{2\pi^2\omega}{\sinh(2\pi^2\omega)},&\omega\ne0,\\
+ 1,&\omega=0.
+ \end{cases}
+\end{equation}
+This is everywhere strictly positive. The convolution theorem and
+Plancherel imply $\ker\mathcal C=\{0\}$.
+\lean{LiouvilleFourier}
+
+Apply Lemma~\ref{lem:translates} to $h_j=k_{b_j}^+$. By
+\eqref{eq:translate-k}, it produces a nonzero $\varphi\in\ker H_+$.
+Equation~\eqref{eq:operator-factor} would then give
+$\mathcal C\varphi=0$, a contradiction. We have proved:
+\begin{theorem}\label{thm:cocompact}
+Under the hypotheses of Theorem~\ref{thm:main}, if
+$\Ga\backslash\HH$ is compact, then $\nu\perp m_o$.
+\end{theorem}
+\lean{CocompactHittingSingularity; FuchsianCocompactSingularity}
+
+\section{Quasiconvex orbits and a Green-distance criterion}\label{sec:qc}
+An orbit $\Ga o$ is \emph{quasiconvex} if some $R<\infty$ satisfies
+$[xo,yo]\subset N_R(\Ga o)$ for all $x,y\in\Ga$.
+Let $\Lambda\subset\bd$ denote the orbit limit set.
+\begin{lemma}\label{lem:qc-dichotomy}
+If $\Ga o$ is quasiconvex, either $m_o(\Lambda)=0$ or
+$\Ga\backslash\HH$ is compact.
+\end{lemma}
+\begin{proof}
+Suppose $m_o(\Lambda)>0$. Choose a finite-chart Lebesgue density point
+$\xi$ of $\Lambda$. Along the vertical ray $w_t=\xi+ie^{-t}$, the
+Poisson approximate identity gives $m_{w_t}(\Lambda^c)\to0$.
+Quasiconvexity, applied to segments with endpoints tending to $\xi$,
+provides $g_t\in\Ga$ at uniformly bounded distance from $w_t$; changing
+the initial point of the ray only changes this bound by a constant.
+Visual measures at points at distance at most $R'$ have density ratios
+between $e^{-R'}$ and $e^{R'}$. Invariance of $\Lambda$ gives
+\[
+ m_o(\Lambda^c)=m_{g_to}(\Lambda^c)
+                 \le e^{R'}m_{w_t}(\Lambda^c)\longrightarrow0.
+\]
+Since $\Lambda$ is closed and $m_o$ has full support, $\Lambda=\bd$.
+Every complete geodesic is then a limit of orbit-endpoint geodesic
+segments. Quasiconvexity and properness imply that every point on such
+a geodesic lies within a uniform distance of $\Ga o$. Hence the orbit
+is coarsely dense in $\HH$. The image of a sufficiently large compact
+ball covers the quotient, proving compactness.
+\end{proof}
+\lean{QuasiconvexConical; QuasiconvexLimitSetDichotomy; QuasiconvexFullBoundary}
+Because $\nu(\Lambda)=1$, Lemma~\ref{lem:qc-dichotomy} and
+Theorem~\ref{thm:cocompact} prove singularity for every quasiconvex orbit.
+\lean{FuchsianQuasiconvexSingularity}
+
+\begin{lemma}\label{lem:green-qc}
+If constants $c,C<\infty$ satisfy $\DG(g)\le cD(g)+C$ for every $g$,
+then $\Ga o$ is quasiconvex.
+\end{lemma}
+\begin{proof}
+Let $|g|$ be word length for $S\cup S^{-1}$. Since $r(P)<1$, choose
+$q<1$ and $A<\infty$ with $\|P^n\|\le Aq^n$. No $S$-path of length
+less than $|g|$ reaches $g$, so
+\[
+ G(e,g)\le\sum_{n\ge |g|}Aq^n=\frac{A}{1-q}q^{|g|}.
+\]
+Thus $\DG(g)\ge\alpha |g|-\beta$ for some $\alpha>0$.
+Combining with the hypothesis gives
+$|g|\le c_1D(g)+c_2$. Conversely $D(g)\le L'|g|$, where
+$L'=\max_{s\in S\cup S^{-1}}d(o,so)$. By left invariance, the orbit
+map is a quasi-isometric embedding of the Cayley graph. Connect adjacent
+orbit points by geodesic segments. Images of word-geodesics are uniform
+quasi-geodesics; the Morse lemma in $\HH$ puts the geodesic between their
+endpoints within a fixed distance of them. Each image edge is itself
+within $L'$ of its vertices. This proves orbit quasiconvexity.
+\end{proof}
+\lean{WordDistance; GreenOrbitQuasiconvex}
+
+\section{Dirichlet ends and bounded-height endpoints}\label{sec:ends}
+The remaining argument constructs the finite separators needed to prove
+a Green-distance upper bound under hypothetical nonsingularity. It uses
+no classification of finitely generated Fuchsian groups.
+
+Call $p\in\bd$ a \emph{bounded-height endpoint} if, for a chart
+$B\in\PSL_2(\R)$ with $B\infty=p$, there is $C_B<\infty$ such that
+\begin{equation}\label{eq:bounded-height}
+                  \im(B^{-1}go)\le C_B\quad(g\in\Ga).
+\end{equation}
+The condition is independent of the chart: two such charts differ by a
+real affine map fixing $\infty$, which multiplies heights by a positive
+constant. It is also $\Ga$-invariant, by reindexing $g$.
+
+\begin{lemma}\label{lem:dirichlet-end}
+If $\Ga\backslash\HH$ is noncompact, there exists a bounded-height endpoint.
+\end{lemma}
+\begin{proof}
+The closed Dirichlet cell about $o$ is
+\[
+ \mathcal D=\{w\in\HH:d(w,o)\le d(w,go)\text{ for every }g\in\Ga\}.
+\]
+Every point has a nearest orbit point, since the orbit is proper.
+Translating by that point puts it in $\mathcal D$. If $\mathcal D$ were
+bounded, its compact closure would therefore cover the quotient.
+Noncompactness supplies $w_n\in\mathcal D$ escaping every ball. A
+subsequence converges in the closed disk compactification to $p\in\bd$.
+Choose $B\infty=p$ and write $z=B^{-1}o$, $v=B^{-1}go$, $u_n=B^{-1}w_n$.
+Then $u_n\to\infty$ and $d(u_n,z)\le d(u_n,v)$.
+
+We claim that $\im v\le\im z$. If $\delta=\im v-\im z>0$, the distance
+inequality, using $\cosh d(u,z)=1+|u-z|^2/(2\im u\im z)$, becomes
+\[
+ \delta|u_n|^2\le2A\re u_n+C,\qquad
+ A=(\im v)\re z-(\im z)\re v,\quad
+ C=(\im z)|v|^2-(\im v)|z|^2.
+\]
+This bounds $|u_n|$ by the quadratic inequality
+$\delta|u_n|^2\le2|A||u_n|+|C|$, contradicting $u_n\to\infty$.
+Thus every $g$ satisfies $\im(B^{-1}go)\le\im(B^{-1}o)$, as required.
+\end{proof}
+\lean{ProjectiveDirichletCell; DirichletHeightBound; ProjectiveDirichletEnds}
+
+\begin{lemma}\label{lem:dense-endpoints}
+For every noncompact quotient, bounded-height endpoints are dense in $\bd$.
+\end{lemma}
+\begin{proof}
+Recall that the closure of every boundary orbit contains $\Lambda$.
+For completeness, take a sequence $g_no\to\xi\in\Lambda$ and normalized
+matrix representatives converging to a rank-one matrix. Their boundary
+actions converge to $\xi$ away from at most one repelling point. Any
+nonempty closed invariant set contains a point other than that repelling
+point, since nonelementarity excludes finite orbits. It therefore
+contains $\xi$. This proves the assertion about orbit closures.
+
+If $\Lambda=\bd$, the orbit of the endpoint supplied by
+Lemma~\ref{lem:dirichlet-end} is dense, and bounded height is invariant.
+If $\Lambda\ne\bd$, its complement is dense: choose a point outside
+$\Lambda$; its orbit stays outside and its closure contains $\Lambda$.
+Every $p\notin\Lambda$ is a bounded-height endpoint. Indeed, in a chart
+sending $p$ to infinity, an orbit of unbounded height would have a
+subsequence converging to infinity, making $p$ an orbit limit point.
+This proves density also in this case.
+\end{proof}
+\lean{BoundedHeightEndpoints; FuchsianDirichletDeficit}
+
+\section{Finite separators and harmonic deficits}\label{sec:deficits}
+Take two distinct bounded-height endpoints and send them to $0$ and
+$\infty$. The transformed orbit satisfies, for fixed $C,D>0$,
+\[
+ y\le C,\qquad \frac{y}{x^2+y^2}\le D.
+\]
+For each $R<\infty$, its intersection with $|x|\le Ry$ lies in a compact
+subset of $\HH$, since
+\begin{equation}\label{eq:finite-strip}
+ \frac1{D(1+R^2)}\le y\le C,\qquad |x|\le RC.
+\end{equation}
+Consequently only finitely many group elements lie in this axis strip.
+Choose $R$ with $\operatorname{arsinh}R>L$, where $L$ bounds jump length.
+An edge between opposite sides of the strip cannot avoid it: distance
+to the axis is $\operatorname{arsinh}(|x|/y)$, and a crossing geodesic
+has to meet the axis. Enlarging the finite strip by the finitely many
+one-step predecessors gives a finite set through which every path
+exiting the chosen side must pass. In particular, paths whose boundary
+limit is outside the closure of that side must visit this finite set.
+\lean{BoundedHeightSeparators}
+
+Here is the analytic consequence of a finite separator. For a boundary
+region $E$, suppose every path started at $x$ and converging in $E$ visits
+a finite set $A$. The strong Markov property at first entrance gives,
+as measures restricted to $E$,
+\[
+                    x_*\nu\big|_E=\sum_{a\in A}F_A(x,a)a_*\nu\big|_E.
+\]
+Thus, writing $K_\nu(x,\eta)=d(x_*\nu)/d\nu(\eta)$,
+\begin{equation}\label{eq:finite-boundary-entrance}
+ K_\nu(x,\eta)=\sum_{a\in A}F_A(x,a)K_\nu(a,\eta)
+                   \quad\text{for almost every }\eta\in E.
+\end{equation}
+First-hit domination bounds $K_\nu(a,\eta)\le G_0/G(e,a)$.
+Set
+\[
+ C_A=1+\sum_{a\in A}\frac{G_0}{G(e,a)G(a,e)}.
+\]
+Then $K_\nu(a,\eta)\le C_AG(a,e)$, and the Green entrance decomposition
+implies
+\begin{equation}\label{eq:finite-deficit}
+ K_\nu(x,\eta)\le C_A\sum_{a\in A}F_A(x,a)G(a,e)
+                        \le C_AG(x,e)\quad(\eta\in E\text{ a.e.}).
+\end{equation}
+For $x=g^{-1}$ this reads
+\begin{equation}\label{eq:deficit-bound}
+ \DG(g)-\sigma_\nu(g,\eta)\le\log C_A+\log G_0.
+\end{equation}
+There is no infinite sum or boundary-limit exchange in this argument.
+\lean{FiniteEntranceHarmonicDeficit; FuchsianFiniteEntrancePaths}
+
+Define the harmonic shadow and its inverse image by
+\begin{equation}\label{eq:harmonic-shadow}
+ \mathcal H_R(g)=\{\eta:\DG(g)-\sigma_\nu(g,g^{-1}\eta)\le R\},\qquad
+ T_R(g)=g^{-1}\mathcal H_R(g).
+\end{equation}
+All sets and cocycle formulas may be modified on a single invariant null
+set; the group is countable. The cocycle bound \eqref{eq:cocycle-bound}
+shows that the deficit in this definition is nonnegative.
+
+\begin{proposition}\label{prop:deficit-compactness}
+If bounded-height endpoints are dense, every sequence $(g_n)$ has a
+subsequence, still denoted $(g_n)$, and a finite set $Z\subset\bd$ with
+the following property: for every open $U\supset Z$ there exists $R$
+such that, eventually,
+\begin{equation}\label{eq:deficit-compactness}
+                         U^c\subset T_R(g_n)\quad\text{modulo a }\nu\text{-null set}.
+\end{equation}
+One may take $Z$ empty or a singleton.
+\end{proposition}
+\begin{proof}
+If $(g_n)$ has a constant subsequence, its cocycle is bounded below by
+\eqref{eq:cocycle-bound}, so take $Z=\varnothing$ and a sufficiently large
+$R$. Otherwise pass to a subsequence with $g_n^{-1}o\to\xi\in\bd$ and
+take $Z=\{\xi\}$. Given $U\ni\xi$, choose bounded-height endpoints on
+either side of $\xi$ so that the closed arc between them containing
+$\xi$ is contained in $U$. In the associated chart, $g_n^{-1}o$ is
+eventually on that side of the axis. The finite-strip construction
+provides a fixed finite separator for every path from these starting
+points with boundary limit in $U^c$. Apply \eqref{eq:deficit-bound}.
+\end{proof}
+\lean{FuchsianDeficitCompactness; FuchsianDirichletDeficit}
+
+\section{Common shadows for harmonic and visual measures}\label{sec:mixed}
+Suppose, towards a contradiction, that $\nu\not\perp m_o$. Then
+$\nu\ll m_o$ by Proposition~\ref{prop:basic}. There is a measurable,
+exactly invariant set $E$ such that
+\begin{equation}\label{eq:carrier}
+                  \nu\sim\rho:=m_o|_E,\qquad 0<\rho(\bd)\le1.
+\end{equation}
+Indeed, start with the set where $d\nu/dm_o>0$ and remove the countable
+union of its null failures of invariance. Quasi-invariance of both
+measures makes this removal harmless. On $E$ the logarithmic cocycle of
+$\rho$ equals the visual cocycle. Set $H=\log(d\nu/d\rho)$; it is finite
+almost everywhere and satisfies \eqref{eq:coboundary}.
+\lean{FuchsianVisualCarrier}
+
+Conjugate so that $o=i$. For $g\in\Ga$ put $t=D(g)$ and choose
+$A_g\in\PSL_2(\R)$ with $A_gi=i$ and $A_g(ie^t)=gi$. For $r>0$ define
+\[
+ \mathcal V_r(g)=A_g\bigl(\bd\setminus[-e^t r,e^t r]\bigr).
+\]
+For $t=0$, any such choice suffices. Writing $a_tz=e^t z$, the element
+$k_g=g^{-1}A_ga_t$ fixes $i$, and
+\begin{equation}\label{eq:visual-inverse}
+       g^{-1}\mathcal V_r(g)=k_g\bigl(\bd\setminus[-r,r]\bigr).
+\end{equation}
+Since $k_g$ preserves $m_i$,
+\begin{equation}\label{eq:visual-mass}
+ m_i\bigl((g^{-1}\mathcal V_r(g))^c\bigr)
+                   =\frac2\pi\arctan r\le\frac{2r}\pi.
+\end{equation}
+The Poisson formula gives, for $\xi\in g^{-1}\mathcal V_r(g)$,
+\begin{equation}\label{eq:visual-cocycle}
+ D(g)-\log(1+r^{-2})\le\sigma_{m_i}(g,\xi)\le D(g).
+\end{equation}
+For example, before applying $A_g$ the relevant density at $\eta$ is
+$e^t(1+\eta^2)/(e^{2t}+\eta^2)$, which lies between
+$e^t/(1+r^{-2})$ and $e^t$ when $|\eta|>e^t r$.
+Finally, from every sequence $(g_n)$ we can extract a subsequence with
+$k_{g_n}\to k$ in the compact stabilizer of $i$. For any neighborhood
+$U$ of $p=k(0)$, choose $r$ small enough; then eventually
+\begin{equation}\label{eq:visual-exceptional}
+                 (g_n^{-1}\mathcal V_r(g_n))^c\subset U.
+\end{equation}
+\lean{VisualShadows; VisualShadowExceptionalLimit}
+
+Use a countable increasing family of \emph{mixed} shadows:
+\begin{equation}\label{eq:mixed}
+ \mathcal S_N(g)=\mathcal H_N(g)\cap\mathcal V_{1/(N+1)}(g),\qquad
+               T_N^*(g)=g^{-1}\mathcal S_N(g),\quad N\in\N.
+\end{equation}
+The following two consequences are the precise shadow geometry needed.
+\begin{lemma}\label{lem:mixed-properties}
+Assume Proposition~\ref{prop:deficit-compactness}. Then:
+\begin{enumerate}
+\item There is $N_0$ such that, for each $N\ge N_0$ and
+$\lambda\in\{\nu,\rho\}$, constants $c_\lambda>0$ and $C_\lambda<\infty$
+independent of $g$ satisfy
+\begin{align}
+ \lambda(T_N^*(g))&\ge c_\lambda,\label{eq:inverse-positive}\\
+ |\sigma_\lambda(g,\xi)-D_\lambda(g)|&\le C_\lambda
+                   \quad(\xi\in T_N^*(g)\text{ a.e.}),\label{eq:shadow-cocycle}\\
+ e^{-D_\lambda(g)-C_\lambda}\le\lambda(\mathcal S_N(g))
+                   &\le e^{-D_\lambda(g)+C_\lambda},\label{eq:shadow-masses}
+ \intertext{where}
+                  D_\nu(g)&=\DG(g),\qquad D_\rho(g)=D(g).\nonumber
+\end{align}
+\item From every sequence $(g_n)$ one can extract a subsequence and find
+an $N\ge N_0$ and finite $F\subset\Ga$ such that eventually
+\begin{equation}\label{eq:finite-cover}
+                     \bd=\bigcup_{a\in F}aT_N^*(g_n)
+                                      \quad\text{modulo a }\nu\text{-null set}.
+\end{equation}
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+First, harmonic inverse shadows have uniformly almost full $\nu$-mass
+as $N\to\infty$. Otherwise choose $g_N$ with
+$\nu(T_N(g_N)^c)\ge\varepsilon$. Apply deficit compactness to a
+subsequence. As $\nu$ is atomless, choose an open neighborhood $U$ of
+its finite exceptional set with $\nu(U)<\varepsilon$. For some fixed
+$R$ and all sufficiently large subsequence indices,
+$T_R(g_N)^c\subset U$ modulo null sets. Since $N\ge R$ eventually,
+monotonicity contradicts the choice of $g_N$.
+Finite-measure absolute continuity transfers this uniform estimate from
+$\nu$ to $\rho$. Equation~\eqref{eq:visual-mass} and
+$\nu,\rho\ll m_i$ similarly give uniformly almost full mass for the
+visual inverse shadows. The intersection therefore has a uniform positive
+mass for both measures once $N$ is large.
+
+On the mixed inverse shadow, \eqref{eq:harmonic-shadow} and the global
+upper cocycle bound give $\DG(g)-N\le\sigma_\nu(g,\xi)\le\DG(g)$.
+Equation~\eqref{eq:visual-cocycle} gives the analogous visual estimate.
+Integrating the Jacobian formula \eqref{eq:jacobian} over $T_N^*(g)$,
+using its positive mass and the fact that each measure has total mass
+at most one, gives \eqref{eq:shadow-masses} after increasing the constants.
+This proves (1).
+
+For (2), combine the finite exceptional set from deficit compactness
+with the single exceptional point from \eqref{eq:visual-exceptional};
+call their union $Z$. There is a finite $F\subset\Ga$ with
+$\bigcap_{a\in F}aZ=\varnothing$. Indeed, a point in the intersection
+of all translates would have its whole inverse orbit in the finite
+set $Z$, contradicting nonelementarity; compactness reduces the empty
+intersection to finitely many translates. Choose a sufficiently small
+open neighborhood $U$ of $Z$ so that $\bigcap_{a\in F}aU=\varnothing$.
+Both exceptional-set statements, and then enlargement of $N$, give
+$U^c\subset T_N^*(g_n)$ almost everywhere for all sufficiently large $n$.
+Since $\bigcup_{a\in F}aU^c=\bd$ and translates preserve null sets,
+\eqref{eq:finite-cover} follows.
+\end{proof}
+\lean{FuchsianMixedDeficitUniformMass; FuchsianMixedDeficitEstimates; FuchsianDeficitAECover}
+
+\section{From nonsingularity to a uniform Green comparison}\label{sec:rigidity}
+We give the measure comparison argument explicitly. This is the step
+that turns the preceding geometric information into a global bound;
+it is not an application of an external singularity theorem. The use
+of common shadows is related to the general Patterson--Sullivan
+rigidity framework of Kim--Zimmer~\cite{KimZimmer}.
+
+\begin{proposition}\label{prop:rigidity}
+Under \eqref{eq:carrier} and the two conclusions of
+Lemma~\ref{lem:mixed-properties}, there is a constant $C<\infty$ such that
+\begin{equation}\label{eq:rigid-comparison}
+                         |\DG(g)-D(g)|\le C\qquad(g\in\Ga).
+\end{equation}
+\end{proposition}
+\begin{proof}
+Choose $M<\infty$ such that the bounded-density window
+\[
+                         W=\{\xi\in E:|H(\xi)|\le M\}
+\]
+has positive $\nu$-measure. By \eqref{eq:martingale}, almost every sample
+path with limit in $W$ satisfies
+\begin{equation}\label{eq:window-concentration}
+                  \nu(Z_n^{-1}W^c)\longrightarrow0.
+\end{equation}
+Since $\rho\ll\nu$ and both are finite, the same is true with $\rho$.
+Fix one such path and put $g_n=Z_n$ along it.
+
+Fix any $N\ge N_0$ and write $S_n=\mathcal S_N(g_n)$,
+$T_n=g_n^{-1}S_n$. By \eqref{eq:shadow-cocycle},
+\eqref{eq:inverse-positive}, and the Jacobian formula,
+\[
+ \frac{\lambda(S_n\setminus W)}{\lambda(S_n)}
+ \le \frac{e^{2C_\lambda}}{c_\lambda}
+                     \lambda(g_n^{-1}W^c)\longrightarrow0,
+                      \qquad\lambda\in\{\nu,\rho\}.
+\]
+For all sufficiently large $n$, each shadow therefore has at least
+half of its mass in $W$. On $W$, $e^{-M}\rho\le\nu\le e^M\rho$.
+It follows that
+\[
+               \tfrac12e^{-M}\le\frac{\nu(S_n)}{\rho(S_n)}\le2e^M.
+\]
+Compare this with \eqref{eq:shadow-masses}. There is $L_N<\infty$ with
+\begin{equation}\label{eq:path-comparison}
+                          |\DG(g_n)-D(g_n)|\le L_N
+\end{equation}
+for every $n$, after including the finitely many initial values.
+The concentration property holds on the chosen path independently of
+$N$, so this argument supplies \eqref{eq:path-comparison} for every
+integer $N\ge N_0$ on that same path.
+\lean{FuchsianShadowPathComparison}
+
+Apply part (2) of Lemma~\ref{lem:mixed-properties} to this sequence.
+Pass to its subsequence and fix the resulting $N$ and finite $F$.
+For each $a\in F$, quasi-invariance and \eqref{eq:window-concentration}
+give
+\[
+                     \nu(a g_n^{-1}W^c)\longrightarrow0.
+\]
+Pass to a further subsequence so that these error measures are summable,
+simultaneously for all $a\in F$. Borel--Cantelli implies that, for almost
+every $\xi$, eventually
+\[
+                         g_na^{-1}\xi\in W\quad\text{for every }a\in F.
+\]
+At the same time the finite cover \eqref{eq:finite-cover} supplies
+an $a\in F$ with $\eta=a^{-1}\xi\in T_N^*(g_n)$. Consequently both
+$\eta\in T_N^*(g_n)$ and $g_n\eta\in W$ hold. The coboundary identity,
+the two cocycle estimates, and \eqref{eq:path-comparison} give
+\[
+ \begin{split}
+ |H(\eta)|
+ &\le |H(g_n\eta)|+
+             |\sigma_\nu(g_n,\eta)-\sigma_\rho(g_n,\eta)|\\
+ &\le M+C_\nu+C_\rho+L_N.
+ \end{split}
+\]
+There is also a uniform bound $J$ on
+$|\sigma_\nu(a,\zeta)-\sigma_\rho(a,\zeta)|$ for $a\in F$ and almost
+every $\zeta$: use the global Green cocycle bounds
+\eqref{eq:cocycle-bound} and $|\sigma_\rho(a,\zeta)|\le D(a)$.
+Applying \eqref{eq:coboundary} to $\xi=a\eta$ yields
+\begin{equation}\label{eq:log-density-bounded}
+                 |H(\xi)|\le B:=M+C_\nu+C_\rho+L_N+J
+                                    \quad\text{almost everywhere}.
+\end{equation}
+Thus $e^{-B}\rho\le\nu\le e^B\rho$ globally. This return argument is
+also obtainable from vanishing error measures directly, as in the Lean
+implementation; the summable subsequence makes the almost-everywhere
+conclusion particularly transparent.
+\lean{TranslatedConcentrationReturnCover; ReturnCoverDensityRigidity; FuchsianShadowCorrections}
+
+Finally compare the masses of $\mathcal S_N(g)$ for arbitrary $g$, using
+\eqref{eq:log-density-bounded} and \eqref{eq:shadow-masses}.
+Their ratio is between $e^{-B}$ and $e^B$, hence
+\[
+                    |\DG(g)-D(g)|\le B+C_\nu+C_\rho.
+\]
+This proves \eqref{eq:rigid-comparison} for the whole group.
+\end{proof}
+\lean{BoundedSequenceShadowRigidity; FuchsianShadowGeometryRigidity}
+
+\section{Completion of the proof}\label{sec:completion}
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Boundary convergence and the stated properties of its actual law were
+established in Proposition~\ref{prop:basic}. If the quotient is compact,
+apply Theorem~\ref{thm:cocompact}.
+
+Suppose the quotient is noncompact and, for a contradiction, that
+$\nu\not\perp m_o$. Then $\nu\ll m_o$, and the carrier construction
+\eqref{eq:carrier} applies. Lemmas~\ref{lem:dirichlet-end} and
+\ref{lem:dense-endpoints} provide a dense set of bounded-height endpoints.
+Proposition~\ref{prop:deficit-compactness} supplies deficit compactness;
+Lemma~\ref{lem:mixed-properties} supplies the common shadows and their
+finite corrected covers. Proposition~\ref{prop:rigidity} now yields
+$\DG(g)\le D(g)+C$. Lemma~\ref{lem:green-qc} makes the orbit quasiconvex.
+By Lemma~\ref{lem:qc-dichotomy}, either $m_o(\Lambda)=0$ or the quotient
+is compact. The first alternative contradicts $\nu\ll m_o$ and
+$\nu(\Lambda)=1$; the second contradicts noncompactness.
+Thus $\nu\perp m_o$ in all cases.
+
+On $\R$, the density of $m_o$ is strictly positive relative to Lebesgue
+measure. The hitting measure has no atom at $\infty$. The same conclusion
+therefore holds relative to Lebesgue measure in the finite boundary chart.
+\end{proof}
+\lean{FuchsianSingularity.fuchsian_hittingMeasure_singular_lebesgue}
+
+The formal final theorem splits the noncompact argument into full and
+proper limit sets. The exposition combined them in
+Lemma~\ref{lem:dense-endpoints}; the ingredients and resulting separator
+estimate are the same. In particular, nonuniform lattices and
+infinite-covolume groups both fall within the theorem. Semigroup
+generation, finite support, discreteness, and nonelementarity are retained
+throughout; symmetry and finite covolume are never added.
+
+\appendix
+\section{How to locate the proof in Lean}\label{app:lean}
+The entry point is \texttt{Singularity/FuchsianSingularity.lean}.
+Its principal declaration is
+\begin{quote}\ttfamily\small
+Singularity.fuchsian\_hittingMeasure\_singular.
+\end{quote}
+The group parameter is a subgroup of $\PSL(2,\R)$ with discrete topology.
+The law is specified by a finite set $s$, positive weights on $s$, total
+mass one, and $\texttt{Submonoid.closure}\,(s)=\top$. The hitting measure
+is the law of the constructed geometric boundary limit, not an abstract
+measure assumed to have shadow estimates. The companion declaration
+\texttt{fuchsian\_randomWalk\_converges\_and\_hittingMeasure\_singular}
+includes almost-sure convergence.
+
+The following table lists source modules relative to
+\texttt{formalization/Singularity/}; each name has extension
+\texttt{.lean}. It is a navigation guide, not a list of additional
+hypotheses of the main theorem.
+\small
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.73\textwidth}@{}}
+\toprule
+Mathematical step & Main source modules\\\midrule
+\endfirsthead
+\toprule Mathematical step & Main source modules\\\midrule
+\endhead
+Walk and actual limit & FuchsianHittingMeasure; FuchsianBoundaryConcentration;
+FuchsianHittingErgodicity\\[5pt]
+Green compression & Green; Operators; GreenSeparator\\[5pt]
+Martin--Na\"im package & GeometricNaimKernel; GeometricNaimContinuity;
+GeometricNaimCurrent; GeometricNaimQuotient\\[5pt]
+One-sided comparison & OneSidedNaimRigidity; NaimCurrentRigidity;
+GreenVisualUpper; GreenVisualLower\\[5pt]
+Strip factorization & StripNaimKernel; StripNaimContinuity;
+KernelFactorization; NormalizedTwoSidedSingularity\\[5pt]
+Fourier obstruction & KernelProjection; MeasurableKernel; FrequencyKernel;
+FourierReduction; LiouvilleFourier\\[5pt]
+Cocompact conclusion & CocompactHittingSingularity; FuchsianCocompactSingularity\\[5pt]
+Quasiconvex reduction & GreenOrbitQuasiconvex; QuasiconvexLimitSetDichotomy;
+QuasiconvexFullBoundary; FuchsianQuasiconvexSingularity\\[5pt]
+Dirichlet end & ProjectiveDirichletCell; DirichletHeightBound;
+ProjectiveDirichletEnds; BoundedHeightEndpoints\\[5pt]
+Finite separators & BoundedHeightSeparators; FiniteEntranceHarmonicDeficit;
+FuchsianFiniteEntrancePaths; FuchsianDirichletDeficit\\[5pt]
+Common shadows & FuchsianMixedDeficitShadows; FuchsianMixedDeficitUniformMass;
+FuchsianMixedDeficitEstimates; FuchsianDeficitAECover\\[5pt]
+Density rigidity & FuchsianShadowPathComparison; TranslatedConcentrationReturnCover;
+ReturnCoverDensityRigidity; FuchsianShadowGeometryRigidity\\[5pt]
+Final assembly & FuchsianSingularityFromDeficitCompactness;
+FuchsianSingularity\\
+\bottomrule
+\end{longtable}
+\normalsize
+
+The recorded project verification reports a successful build of 4471
+jobs and an audit of 2591 declarations. The allowed foundational axioms
+are \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+This describes the saved verification report; producing this exposition
+does not itself rerun that complete audit. The pinned toolchain is
+\texttt{leanprover/lean4:v4.34.0-rc2}, with mathlib commit
+\texttt{3649549a1e4b19461e912299ca7127d8831b79fa}.
+
+From the project root, with Lean's \texttt{elan} toolchain manager installed,
+the usual reproduction commands are
+\begin{quote}\ttfamily
+lake exe cache get\\
+lake build
+\end{quote}
+The source distribution includes its toolchain and dependency lock files.
+The large \texttt{.lake} directory is a regenerable dependency/build cache.
+For the mathematical source of this document, run \texttt{pdflatex} twice
+on \texttt{singularity-from-lean.tex}; the bibliography is embedded.
+
+\section{Scope of this exposition and classical inputs}
+This document proves the singularity conclusion by the argument organized
+in the Lean development, while stating its foundational boundary package
+as Proposition~\ref{prop:boundary-package}. It is not a line-by-line
+translation of all supporting formal declarations. Standard results used
+at that level include the admissible nonamenability spectral criterion,
+nonelementary boundary convergence, the cocompact Ancona--Martin theory,
+Hopf ergodicity for the compact hyperbolic geodesic flow, the Morse lemma,
+Plancherel's theorem, and the martingale convergence theorem. Their
+hypotheses and the places where they enter are indicated in the text.
+The noncompact Dirichlet-end, finite-entrance, mixed-shadow, and density
+rigidity steps are spelled out rather than replaced by an appeal to a
+classification or singularity theorem.
+
+A machine-checked source theorem and a human mathematical exposition are
+different artifacts: the former certifies its formal statement relative
+to its foundations; the latter must also communicate conventions,
+dependencies, and mathematical identifications clearly. The source-module
+references above are provided to make that comparison possible.
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{Woess}
+W.~Woess, \emph{Random Walks on Infinite Graphs and Groups},
+Cambridge Tracts in Mathematics \textbf{138}, Cambridge University Press,
+2000. \url{https://doi.org/10.1017/CBO9780511470967}.
+
+\bibitem{Gouezel}
+S.~Gou\"ezel, \emph{Martin boundary of random walks with unbounded jumps
+in hyperbolic groups}, Annals of Probability \textbf{43} (2015),
+2374--2404. \url{https://doi.org/10.1214/14-AOP938}.
+
+\bibitem{CantrellTanaka}
+S.~Cantrell and R.~Tanaka, \emph{Invariant measures of the topological
+flow and measures at infinity on hyperbolic groups}, Journal of Modern
+Dynamics \textbf{20} (2024), 215--274.
+\url{https://doi.org/10.3934/jmd.2024006}.
+
+\bibitem{Bownik}
+M.~Bownik, \emph{The structure of shift-invariant subspaces of
+$L^2(\mathbb R^n)$}, Journal of Functional Analysis \textbf{177} (2000),
+282--309. \url{https://doi.org/10.1006/jfan.2000.3635}.
+
+\bibitem{KimZimmer}
+D.~M.~Kim and A.~Zimmer, \emph{Rigidity for Patterson--Sullivan systems
+with applications to random walks and entropy rigidity}, preprint,
+arXiv:2505.16556. \url{https://arxiv.org/abs/2505.16556}.
+\end{thebibliography}
+\end{document}
